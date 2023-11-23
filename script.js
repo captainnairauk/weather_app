@@ -1,6 +1,8 @@
 const btn = document.querySelector("#btn");
 const searchInput = document.querySelector("#searchInput");
-const content = document.querySelector("#content");
+const popupContainer = document.querySelector("#popup-container");
+const popupContent = document.querySelector("#popup-content");
+const loadingIndicator = document.createElement('p');
 const h3El = document.createElement('h3');
 const tempInC = document.createElement('span');
 const feelsLike = document.createElement('p');
@@ -8,13 +10,23 @@ const humidity = document.createElement('p');
 const wind = document.createElement('p');
 const errorParagraph = document.createElement('p');
 
+
 errorParagraph.id = 'error';
 
+
+loadingIndicator.id = 'loading';
+loadingIndicator.textContent = 'Loading...';
+
 btn.addEventListener("click", async () => {
-  content.textContent = "";
-  const loadingIndicator = document.createElement('p');
-  loadingIndicator.textContent = "Loading...";
-  content.appendChild(loadingIndicator);
+
+  popupContent.textContent = '';
+
+
+  popupContent.appendChild(loadingIndicator);
+
+
+  popupContainer.style.display = "flex";
+
   let searchTerm;
 
   try {
@@ -41,9 +53,8 @@ btn.addEventListener("click", async () => {
     );
 
     const result = await response.json();
-    content.removeChild(loadingIndicator);
 
-    // img.src = result.data.images.original.url;
+
 
     h3El.textContent = result.location.name;
 
@@ -55,26 +66,37 @@ btn.addEventListener("click", async () => {
 
     wind.textContent = `Wind: ${result.current.wind_kph}`;
 
-    content.appendChild(h3El);
+    popupContent.appendChild(h3El);
 
     tempInC.appendChild(degC1);
-    content.appendChild(tempInC);
+    popupContent.appendChild(tempInC);
 
     feelsLike.appendChild(degC2);
-    content.appendChild(feelsLike);
+    popupContent.appendChild(feelsLike);
 
     humidity.appendChild(percent);
-    content.appendChild(humidity);
+    popupContent.appendChild(humidity);
 
     wind.appendChild(kmph);
-    content.appendChild(wind);
+    popupContent.appendChild(wind);
   } catch (error) {
-    content.textContent = "";
-
     searchTerm = searchInput.value.trim();
     errorParagraph.textContent = `Error: City "${searchTerm}" not found`;
-    content.appendChild(errorParagraph);
+    popupContent.appendChild(errorParagraph);
+  } finally {
+
+    if (popupContent.contains(loadingIndicator)) {
+      popupContent.removeChild(loadingIndicator);
+    }
   }
 
   searchInput.value = "";
+});
+
+
+
+popupContainer.addEventListener("click", (event) => {
+  if (event.target === popupContainer) {
+    popupContainer.style.display = "none";
+  }
 });
